@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cortext</title>
+    <link rel="stylesheet" href="setup.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <div class="brand">
+        <div class="dot"></div>
+        <h1>Cortext</h1>
+      </div>
+
+      <p id="stage" class="stage">Starting…</p>
+
+      <div id="bar" class="bar"><div id="bar-fill" class="bar-fill"></div></div>
+
+      <p class="hint" id="hint">
+        First launch builds a local runtime and, on your first score, downloads
+        ~12&nbsp;GB of models. This happens once and runs entirely on your machine.
+      </p>
+
+      <details class="logwrap">
+        <summary>Show details</summary>
+        <pre id="log" class="log"></pre>
+      </details>
+
+      <section id="error" class="error" hidden>
+        <h2>Setup hit a problem</h2>
+        <p id="error-msg"></p>
+        <button id="retry">Try again</button>
+      </section>
+
+      <footer class="foot">Research / personal use. Model weights are CC&nbsp;BY-NC.</footer>
+    </main>
+    <script src="setup.js"></script>
+  </body>
+</html>

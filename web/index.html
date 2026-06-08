@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TRIBE Scorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root { --bg:#0e0e0e; --panel:#1a1a1a; --line:#2c2c2c; --txt:#e2e2e2; --dim:#919191; --hot:#ff5c38; --ok:#46d39a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--txt); font-family:'Space Grotesk',system-ui,sans-serif; }
+  .wrap { max-width:1060px; margin:0 auto; padding:30px 24px 90px; }
+  h1 { font-size:28px; letter-spacing:-.02em; margin:0; text-transform:uppercase; font-weight:700; }
+  .sub { color:var(--dim); font-size:13px; margin:4px 0 16px; }
+  .pill { display:inline-flex; align-items:center; gap:7px; font-size:12px; padding:4px 11px; border:1px solid var(--line); border-radius:999px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--dim); }
+  .dot.loading { background:#e8b339; animation:pulse 1.1s infinite; }
+  .dot.ready { background:var(--ok); } .dot.error { background:var(--hot); }
+  @keyframes pulse { 0%,100%{opacity:.35} 50%{opacity:1} }
+  .caveat { border-left:3px solid var(--hot); background:#1a1410; padding:10px 13px; font-size:12px; color:#d9cfc7; margin:14px 0 18px; line-height:1.5; }
+  .caveat b { color:#fff; }
+  .tabs { display:flex; gap:4px; border-bottom:1px solid var(--line); margin-top:18px; }
+  .tab { padding:9px 16px; font-size:12.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--dim); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab.on { color:#fff; border-bottom-color:#fff; }
+  .tabpane { display:none; padding-top:16px; } .tabpane.on { display:block; }
+  textarea { width:100%; min-height:130px; background:var(--panel); color:var(--txt); border:1px solid var(--line); border-radius:8px; padding:12px; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.55; resize:vertical; }
+  textarea:focus, input:focus, select:focus { outline:none; border-color:#4a4a4a; }
+  .row { display:flex; gap:12px; align-items:center; margin-top:11px; flex-wrap:wrap; }
+  button { background:#fff; color:#111; border:none; border-radius:7px; padding:10px 18px; font-family:inherit; font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:12px; cursor:pointer; }
+  button:disabled { background:#333; color:#777; cursor:not-allowed; }
+  button.ghost { background:transparent; color:var(--dim); border:1px solid var(--line); }
+  .hint { color:var(--dim); font-size:12px; }
+  .drop { border:1.5px dashed var(--line); border-radius:9px; padding:34px; text-align:center; color:var(--dim); font-size:13px; cursor:pointer; }
+  .drop.hot { border-color:#6a6a6a; color:#ccc; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:16px; margin-top:20px; }
+  .panel h3 { margin:0 0 12px; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); font-weight:500; }
+  label.field { display:block; margin-bottom:14px; font-size:12px; color:var(--dim); }
+  label.field span { display:block; margin-bottom:5px; color:#cfcfcf; }
+  input[type=text], input[type=password], select { width:100%; background:#121212; color:var(--txt); border:1px solid var(--line); border-radius:6px; padding:9px 10px; font-family:'JetBrains Mono',monospace; font-size:12.5px; }
+  .chk { display:flex; align-items:center; gap:8px; font-size:13px; color:#cfcfcf; }
+  .now-text { font-family:'JetBrains Mono',monospace; font-size:12.5px; color:#cdd6cd; background:#121212; border:1px solid var(--line); border-radius:6px; padding:9px 11px; margin-bottom:10px; word-break:break-word; }
+  .stage { display:flex; align-items:center; gap:9px; font-size:13px; margin-bottom:10px; }
+  .spin { width:13px; height:13px; border:2px solid #444; border-top-color:#fff; border-radius:50%; animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .log { font-family:'JetBrains Mono',monospace; font-size:11px; line-height:1.6; color:#8fa68f; background:#0c0c0c; border:1px solid var(--line); border-radius:6px; padding:9px 11px; height:140px; overflow-y:auto; white-space:pre-wrap; }
+  table { width:100%; border-collapse:collapse; margin-top:8px; font-size:13px; }
+  th, td { text-align:right; padding:8px 9px; border-bottom:1px solid var(--line); }
+  th:nth-child(2), td:nth-child(2), th:last-child, td:last-child { text-align:left; }
+  th { color:var(--dim); font-weight:500; font-size:11px; text-transform:uppercase; letter-spacing:.05em; cursor:pointer; }
+  th.sortby { color:#fff; }
+  td.txt { text-align:left; max-width:360px; font-size:12.5px; color:#cfcfcf; }
+  tr.top td { color:#fff; }
+  .rank { color:var(--dim); font-variant-numeric:tabular-nums; }
+  .tag { font-size:10px; padding:2px 6px; border:1px solid var(--line); border-radius:4px; color:var(--dim); text-transform:uppercase; }
+  .barcell { position:relative; } .bar { position:absolute; left:0; top:0; bottom:0; background:rgba(70,211,154,.10); z-index:0; }
+  .num { position:relative; z-index:1; font-variant-numeric:tabular-nums; }
+  a.dl { color:#8fb6d9; font-size:11px; text-decoration:none; margin-right:8px; } a.dl:hover { text-decoration:underline; }
+  .controls { display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-bottom:4px; }
+  .empty { color:var(--dim); font-size:13px; padding:16px 4px; }
+  .dimtag { color:var(--dim); font-size:10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>TRIBE Scorer</h1>
+  <p class="sub">Meta's brain-response model, hostable. Score text, audio, or video. Export the raw predictions.</p>
+  <span class="pill"><span id="dot" class="dot loading"></span><span id="statusText">connecting...</span></span>
+
+  <div class="caveat">
+    <b>What the score is.</b> TRIBE predicts fMRI <b>brain response to passive media</b>, not likes or upvotes. <b>total_activation tracks length</b>; rank by <b>peak</b> and <b>variance</b>. The model outputs activation across 20,484 cortical points over time. Download the raw array per item below.
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" data-tab="text">Text</div>
+    <div class="tab" data-tab="audio">Audio</div>
+    <div class="tab" data-tab="video">Video</div>
+    <div class="tab" data-tab="settings">Settings</div>
+  </div>
+
+  <div class="tabpane on" id="pane-text">
+    <textarea id="input" placeholder="One draft per line..."></textarea>
+    <div class="row"><button id="scoreBtn" disabled>Score text</button><span class="hint" id="queueHint">loading model...</span></div>
+  </div>
+
+  <div class="tabpane" id="pane-audio">
+    <div class="drop" id="dropAudio">Drop an audio file here, or click to choose<br><span class="dimtag">.wav .mp3 .flac .ogg .m4a</span></div>
+    <input type="file" id="fileAudio" accept=".wav,.mp3,.flac,.ogg,.m4a" style="display:none" />
+    <div class="row"><span class="hint">Audio is transcribed + run through the audio + text encoders.</span></div>
+  </div>
+
+  <div class="tabpane" id="pane-video">
+    <div class="drop" id="dropVideo">Drop a video file here, or click to choose<br><span class="dimtag">.mp4 .mov .mkv .avi .webm</span></div>
+    <input type="file" id="fileVideo" accept=".mp4,.mov,.mkv,.avi,.webm" style="display:none" />
+    <div class="row"><span class="hint">Video runs V-JEPA2 (visual) + audio + text. First run downloads a large model and is slow.</span></div>
+  </div>
+
+  <div class="tabpane" id="pane-settings">
+    <div class="panel" style="margin-top:0">
+      <h3>Model configuration</h3>
+      <p class="hint" id="accel" style="margin:-4px 0 12px"></p>
+      <label class="field"><span>Device (main model + default). auto = CUDA if present, else CPU.</span>
+        <select id="cfgDevice"><option value="auto">auto</option><option value="cpu">cpu</option><option value="cuda">cuda (NVIDIA)</option><option value="mps">mps (Apple GPU, best-effort)</option></select>
+      </label>
+      <label class="field"><span>Text encoder device (the heavy LLaMA part). Blank = follow main. Set to a GPU for "heavy on GPU, rest on CPU".</span>
+        <select id="cfgTextDevice"><option value="">follow main</option><option value="cpu">cpu</option><option value="cuda">cuda</option><option value="mps">mps</option></select>
+      </label>
+      <label class="field"><span>Audio encoder device. Blank = follow main.</span>
+        <select id="cfgAudioDevice"><option value="">follow main</option><option value="cpu">cpu</option><option value="cuda">cuda</option><option value="mps">mps</option></select>
+      </label>
+      <label class="field"><span>Text model (HF repo). Default is a non-gated Llama-3.2-3B mirror.</span>
+        <input type="text" id="cfgTextModel" />
+      </label>
+      <label class="field"><span>Text layers (fractions of depth, comma separated)</span>
+        <input type="text" id="cfgLayers" placeholder="0.5, 0.75, 1.0" />
+      </label>
+      <label class="chk" style="margin:6px 0 16px"><input type="checkbox" id="cfgSaveRaw" /> Save raw predictions for export</label>
+      <button id="saveCfg">Save + reload model</button>
+      <span class="hint" id="cfgHint" style="margin-left:10px"></span>
+    </div>
+    <div class="panel">
+      <h3>Access</h3>
+      <label class="field"><span>API key for your requests (sent as X-API-Key). Stored in this browser only.</span>
+        <input type="password" id="cfgApiKeyClient" />
+      </label>
+      <label class="field"><span>Set / replace the server's required API key (leave blank to keep current)</span>
+        <input type="password" id="cfgApiKeyServer" placeholder="leave blank to not change" />
+      </label>
+      <button id="saveKey" class="ghost">Save access</button>
+      <span class="hint" id="keyHint" style="margin-left:10px"></span>
+    </div>
+  </div>
+
+  <div class="panel" id="nowPanel" style="display:none">
+    <h3>Now scoring <span id="nowProg" class="dimtag"></span></h3>
+    <div class="now-text" id="nowText"></div>
+    <div class="stage"><span class="spin"></span><span id="stageText">queued</span></div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <div class="panel">
+    <div class="controls">
+      <h3 style="margin:0">Leaderboard</h3>
+      <label class="hint">sort by
+        <select id="sortSel">
+          <option value="peak_activation">peak (salience)</option>
+          <option value="per_vertex_variance_mean">variance</option>
+          <option value="mean_activation">mean</option>
+          <option value="total_activation">total (= length)</option>
+        </select>
+      </label>
+      <button class="ghost" id="clearBtn" style="margin-left:auto;padding:6px 12px">Clear</button>
+    </div>
+    <div id="board"></div>
+  </div>
+</div>
+
+<script>
+let results = [], sortKey = "peak_activation", busy = false, ready = false;
+const $ = (id) => document.getElementById(id);
+const apiKey = () => localStorage.getItem("tribe_api_key") || "";
+const hdr = () => { const h = {"Content-Type":"application/json"}; if (apiKey()) h["X-API-Key"]=apiKey(); return h; };
+function fmt(n,d=3){ return Number(n).toFixed(d); }
+function escapeHtml(s){ return String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+  document.querySelectorAll(".tabpane").forEach(x=>x.classList.remove("on"));
+  t.classList.add("on"); $("pane-"+t.dataset.tab).classList.add("on");
+});
+
+function setStatus(s, err, device){
+  $("dot").className = "dot " + s;
+  ready = (s === "ready");
+  if (s==="ready"){ $("statusText").textContent = `ready · ${device||""}`; $("scoreBtn").disabled = busy; $("queueHint").textContent = busy?"":"one draft per line, ~2-3 min each (CPU)"; }
+  else if (s==="loading"){ $("statusText").textContent = "loading model..."; $("scoreBtn").disabled = true; $("queueHint").textContent="first load + model swaps take a few minutes"; }
+  else if (s==="error"){ $("statusText").textContent = "error"; $("queueHint").textContent = err||""; }
+}
+function pushLog(m){ const el=$("log"); el.textContent += m+"\n"; el.scrollTop = el.scrollHeight; }
+
+function renderBoard(){
+  const b = $("board");
+  if (!results.length){ b.innerHTML = `<div class="empty">Nothing scored yet.</div>`; return; }
+  const sorted = [...results].sort((a,b)=>b[sortKey]-a[sortKey]);
+  const max = Math.max(...sorted.map(r=>r[sortKey]))||1;
+  const cols = [["peak_activation","peak",3],["per_vertex_variance_mean","var",4],["mean_activation","mean",4],["total_activation","total",0]];
+  let h = `<table><thead><tr><th>#</th><th>item</th><th>type</th>`+
+    cols.map(([k,l])=>`<th data-k="${k}" class="${k===sortKey?'sortby':''}">${l}${k==='total_activation'?' <span class="dimtag">≈len</span>':''}</th>`).join("")+
+    `<th>data</th></tr></thead><tbody>`;
+  sorted.forEach((r,i)=>{
+    const pct = Math.round(100*r[sortKey]/max);
+    const dl = r.raw ? `<a class="dl" href="/api/result/${r.id}/raw?fmt=npy">.npy</a><a class="dl" href="/api/result/${r.id}/raw?fmt=json">json</a><a class="dl" href="/api/result/${r.id}/brainmap" target="_blank" title="render cortical heatmap">🧠 map</a>` : `<span class="dimtag">off</span>`;
+    h += `<tr class="${i===0?'top':''}"><td class="rank">${i+1}</td>`+
+      `<td class="txt">${escapeHtml(r.text)}</td>`+
+      `<td><span class="tag">${r.modality||'text'}</span></td>`+
+      cols.map(([k,,d])=>{ const bar=k===sortKey?`<span class="bar" style="width:${pct}%"></span>`:""; return `<td class="barcell">${bar}<span class="num">${fmt(r[k],d)}</span></td>`; }).join("")+
+      `<td>${dl}</td></tr>`;
+  });
+  b.innerHTML = h + `</tbody></table>`;
+  b.querySelectorAll("th[data-k]").forEach(th=>th.onclick=()=>{ sortKey=th.dataset.k; $("sortSel").value=sortKey; renderBoard(); });
+}
+$("sortSel").onchange = e => { sortKey=e.target.value; renderBoard(); };
+
+async function loadResults(){ results = await (await fetch("/api/results")).json(); renderBoard(); }
+async function loadConfig(){
+  const c = await (await fetch("/api/config")).json();
+  $("cfgDevice").value = c.device; $("cfgTextModel").value = c.text_model;
+  $("cfgTextDevice").value = c.text_device || ""; $("cfgAudioDevice").value = c.audio_device || "";
+  $("cfgLayers").value = (c.text_layers||[]).join(", "); $("cfgSaveRaw").checked = !!c.save_raw;
+  $("cfgApiKeyClient").value = apiKey();
+  const a = c.available || {}; const rd = c.resolved_devices || {};
+  $("accel").textContent = `detected: CUDA ${a.cuda?'yes':'no'} · MPS ${a.mps?'yes':'no'}   |   running: main=${rd.main||'?'} text=${rd.text||'?'} audio=${rd.audio||'?'}`;
+}
+
+function startBusyUI(label){
+  busy = true; $("scoreBtn").disabled = true;
+  $("nowPanel").style.display = "block"; $("log").textContent=""; $("nowText").textContent=label||""; $("stageText").textContent="queued...";
+}
+
+$("scoreBtn").onclick = async () => {
+  const texts = $("input").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  if (!texts.length) return;
+  startBusyUI(texts[0]);
+  await fetch("/api/score",{method:"POST",headers:hdr(),body:JSON.stringify({texts})});
+};
+
+function wireDrop(dropId, inputId){
+  const drop=$(dropId), inp=$(inputId);
+  drop.onclick = () => inp.click();
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add("hot"); };
+  drop.ondragleave = () => drop.classList.remove("hot");
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove("hot"); if (e.dataTransfer.files[0]) upload(e.dataTransfer.files[0]); };
+  inp.onchange = () => { if (inp.files[0]) upload(inp.files[0]); };
+}
+async function upload(file){
+  if (!ready){ alert("model still loading"); return; }
+  startBusyUI("["+file.name+"]");
+  const fd = new FormData(); fd.append("file", file);
+  const h = {}; if (apiKey()) h["X-API-Key"]=apiKey();
+  const r = await fetch("/api/score/file",{method:"POST",headers:h,body:fd});
+  if (!r.ok){ pushLog("upload error: "+(await r.text())); busy=false; $("scoreBtn").disabled=!ready; }
+}
+wireDrop("dropAudio","fileAudio"); wireDrop("dropVideo","fileVideo");
+
+$("saveCfg").onclick = async () => {
+  const layers = $("cfgLayers").value.split(",").map(s=>parseFloat(s.trim())).filter(n=>!isNaN(n));
+  const body = { device:$("cfgDevice").value, text_device:$("cfgTextDevice").value, audio_device:$("cfgAudioDevice").value, text_model:$("cfgTextModel").value.trim(), text_layers:layers, save_raw:$("cfgSaveRaw").checked };
+  const r = await fetch("/api/config",{method:"POST",headers:hdr(),body:JSON.stringify(body)});
+  $("cfgHint").textContent = r.ok ? ("saved" + ((await r.json()).reloading ? ", reloading model..." : "")) : "error (api key?)";
+};
+$("saveKey").onclick = async () => {
+  localStorage.setItem("tribe_api_key", $("cfgApiKeyClient").value);
+  const srv = $("cfgApiKeyServer").value;
+  if (srv){ const r = await fetch("/api/config",{method:"POST",headers:hdr(),body:JSON.stringify({api_key:srv})}); $("keyHint").textContent = r.ok?"server key updated":"error"; }
+  else $("keyHint").textContent = "saved locally";
+};
+$("clearBtn").onclick = async () => { if(!confirm("Clear all results?"))return; await fetch("/api/results",{method:"DELETE",headers:hdr()}); results=[]; renderBoard(); };
+
+const es = new EventSource("/api/stream");
+es.onmessage = e => {
+  const ev = JSON.parse(e.data);
+  switch(ev.type){
+    case "status": setStatus(ev.status, ev.error, ev.device); break;
+    case "job_start": window._n=ev.n; window._done=0; $("nowProg").textContent=`0 / ${ev.n}`; break;
+    case "draft_start": $("nowText").textContent=ev.text; $("stageText").textContent="starting..."; break;
+    case "stage": $("stageText").textContent=ev.stage; break;
+    case "log": pushLog(ev.msg); break;
+    case "result": results.push(ev.metrics); window._done=(window._done||0)+1; $("nowProg").textContent=`${window._done} / ${window._n||1}`; $("stageText").textContent=`done in ${ev.metrics.seconds||'?'}s`; renderBoard(); break;
+    case "draft_error": pushLog("ERROR: "+ev.error); break;
+    case "job_done": busy=false; $("scoreBtn").disabled=!ready; $("stageText").textContent="done"; $("queueHint").textContent="one draft per line, ~2-3 min each (CPU)"; break;
+  }
+};
+loadResults(); loadConfig();
+</script>
+</body>
+</html>

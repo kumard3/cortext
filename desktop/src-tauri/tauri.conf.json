@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Cortext",
+  "version": "0.1.4",
+  "identifier": "co.kumard3.cortext",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Cortext",
+        "url": "setup.html",
+        "width": 1120,
+        "height": 800,
+        "minWidth": 880,
+        "minHeight": 620,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' http://127.0.0.1:* http://localhost:* ws://127.0.0.1:*; img-src 'self' data:"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app", "dmg"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns"
+    ],
+    "category": "Productivity",
+    "shortDescription": "Score text by predicted brain response, locally.",
+    "longDescription": "Cortext wraps Meta's TRIBE v2 fMRI model in a local macOS app. It sets up its own runtime and models on first launch and runs entirely on your machine. Research / personal use only (model weights are CC BY-NC).",
+    "resources": {
+      "resources/payload": "payload"
+    },
+    "macOS": {
+      "minimumSystemVersion": "12.0"
+    }
+  }
+}

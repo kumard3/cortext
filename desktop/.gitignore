@@ -1,0 +1,14 @@
+node_modules/
+*.dmg
+scripts/*.png
+src-tauri/target/
+src-tauri/gen/
+src-tauri/icons/
+
+# Synced from the repo root by scripts/sync-resources.sh (do not commit copies).
+# bootstrap.sh and config.default.json are authored here and ARE committed.
+src-tauri/resources/payload/server.py
+src-tauri/resources/payload/patch_tribe.py
+src-tauri/resources/payload/requirements-extra.txt
+src-tauri/resources/payload/web/
+src-tauri/resources/payload/bin/

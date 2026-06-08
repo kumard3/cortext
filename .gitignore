@@ -1,0 +1,13 @@
+.venv/
+vendor/
+cache/
+web_results.json
+*.log
+__pycache__/
+*.pyc
+.DS_Store
+config.json
+video/node_modules/
+video/out/
+video/.tts-venv/
+video/__pycache__/

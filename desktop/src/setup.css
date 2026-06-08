@@ -1,0 +1,69 @@
+:root {
+  --bg: #0b0b0d;
+  --fg: #ededf0;
+  --muted: #8a8a93;
+  --accent: #e6552f;
+  --panel: #151518;
+  --border: #26262c;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  display: grid;
+  place-items: center;
+}
+.wrap { width: min(620px, 88vw); padding: 32px; }
+.brand { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+.dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(230, 85, 47, 0.18);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.82); }
+}
+h1 { font-size: 20px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+.stage { font-size: 16px; margin: 0 0 16px; }
+.bar {
+  height: 4px; width: 100%; background: var(--panel);
+  border-radius: 4px; overflow: hidden; margin-bottom: 16px;
+}
+.bar-fill {
+  height: 100%; width: 25%; background: var(--accent);
+  border-radius: 4px; transition: width 0.4s ease;
+  animation: indeterminate 1.6s ease-in-out infinite;
+}
+.bar-fill.determinate { animation: none; }
+@keyframes indeterminate {
+  0% { margin-left: -30%; width: 30%; }
+  50% { width: 55%; }
+  100% { margin-left: 100%; width: 30%; }
+}
+.hint { color: var(--muted); font-size: 13px; margin: 0 0 20px; }
+.logwrap { margin-bottom: 18px; }
+summary { color: var(--muted); cursor: pointer; font-size: 13px; user-select: none; }
+.log {
+  margin: 10px 0 0; max-height: 220px; overflow: auto;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #b9b9c2; white-space: pre-wrap; word-break: break-word;
+}
+.error {
+  background: rgba(230, 85, 47, 0.08);
+  border: 1px solid rgba(230, 85, 47, 0.4);
+  border-radius: 10px; padding: 16px 18px; margin-bottom: 18px;
+}
+.error h2 { font-size: 15px; margin: 0 0 8px; }
+.error p { margin: 0 0 14px; color: #d8c4bd; font-size: 13px; white-space: pre-wrap; }
+button {
+  background: var(--accent); color: #fff; border: 0; border-radius: 8px;
+  padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+button:hover { filter: brightness(1.08); }
+.foot { color: var(--muted); font-size: 12px; }
